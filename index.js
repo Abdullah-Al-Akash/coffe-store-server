@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 
 const port = process.env.PORT || 5000;
@@ -45,6 +45,26 @@ async function run() {
             const cursor = coffeeCollection.find();
             const result = await cursor.toArray();
             res.send(result);
+        })
+
+        // Load Single Coffee:
+        app.get('/coffee/:id', async (req, res) => {
+            const id = req.params.id;
+            const coffee = await coffeeCollection.findOne({ _id: new ObjectId(id) });
+            res.send(coffee);
+        })
+
+        // Delete Single Coffee:
+        app.delete('/coffee/:id', async (req, res) => {
+            const id = req.params.id;
+            const deleteCoffee = { _id: new ObjectId(id) };
+            const result = await coffeeCollection.deleteOne(deleteCoffee);
+            if (result.deletedCount) {
+                res.send(result)
+            }
+            else {
+                res.send({ message: 'Something Went Wrong!' })
+            }
         })
 
 
